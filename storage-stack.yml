@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TD2 Storage stack 
+
+Resources:
+  Databbase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      AllocatedStorage: !Ref DBAllocatedStorage
+      DBInstanceClass:
+        Ref: DBClass
+      Engine: postgres
+  DatabaseSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value:
+        Fn::Join:
+          - ''
+          - - jdbc:postgresql://
+            - Fn::GetAtt:
+                - Database
+                - Endpoint.Address
+            - ':'
+            - Fn::GetAtt:
+                - Database
+                - Endpoint.Port
+            - '/'
+            - !Ref DBName
+
+Outputs:
+  DatabaseSSM:
+    Value: !Ref DatabaseSSM
